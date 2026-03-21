@@ -14,7 +14,7 @@ const Hero = () => (
       CostIQ deploys autonomous AI agents that continuously monitor your operations, detect cost waste and compliance gaps, and fix them — with your approval.
     </p>
     <div className="flex gap-3 justify-center flex-wrap">
-      <a href="#" className="btn-primary">Start free trial →</a>
+      <a href="/login" className="btn-primary">Start free trial →</a>
       <a href="#agents" className="btn-outline">See the agents</a>
     </div>
   </section>
