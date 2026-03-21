@@ -13,7 +13,7 @@ const TABS = [
 
 interface Props {
   activeTab: string;
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: any) => void;
 }
 
 export default function DashboardSidebar({ activeTab, setActiveTab }: Props) {
