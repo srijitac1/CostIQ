@@ -20,7 +20,7 @@ const Index = () => (
     <TrustKitSection />
     <HowItWorks />
     <Pricing />
-    <Testimonials />
+    
     <CtaBanner />
     <Footer />
   </>
