@@ -6,7 +6,7 @@ import AgentsSection from "@/components/AgentsSection";
 import TrustKitSection from "@/components/TrustKitSection";
 import HowItWorks from "@/components/HowItWorks";
 import Pricing from "@/components/Pricing";
-import Testimonials from "@/components/Testimonials";
+
 import CtaBanner from "@/components/CtaBanner";
 import Footer from "@/components/Footer";
 
