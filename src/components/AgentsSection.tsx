@@ -27,20 +27,13 @@ const agents = [
     desc: "Pulls GL entries, matches against invoices and POs, flags discrepancies with root-cause attribution. Cuts your monthly close from 5 days to under 1. Stops duplicate payments before they clear.",
     example: "Found: INV-2024-0891 no matching PO\nAmount at risk: ₹12,40,000\nAction: Hold + CFO escalation",
   },
-  {
-    name: "Compliance Intelligence Agent (TrustKit)",
-    color: "border-l-cost-green text-cost-green",
-    title: "Turns your SOC 2 gaps into closed deals",
-    desc: "Scans SOC 2 control gaps and maps each one to the enterprise deals it's blocking — with exact revenue at risk. Generates audit-ready policies using AI, runs access reviews automatically, and tracks remediation in real time.",
-    example: "Gap: CC6 access control — no review in 180 days\nRevenue blocked: $2,00,000 across 3 deals\nAction: Auto-access review → policy → auditor booked in 3 days",
-  },
 ];
 
 const AgentsSection = () => (
   <section id="agents" className="py-20 px-5 md:px-10 max-w-[1100px] mx-auto">
     <p className="text-[11px] text-primary font-semibold tracking-widest uppercase font-mono mb-3">The agent fleet</p>
     <h2 className="font-display text-[clamp(28px,4vw,42px)] font-bold leading-tight mb-4">
-      Five agents. One mission.<br />Stop the bleeding.
+      Four agents. One mission.<br />Stop the bleeding.
     </h2>
     <p className="text-base text-muted-foreground max-w-[520px] leading-relaxed mb-14">
       Each agent runs continuously, uses AI to detect patterns your team can't see, and triggers corrective actions — with your sign-off.
