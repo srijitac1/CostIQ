@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_actions: {
+        Row: {
+          action_type: string
+          anomaly_id: string | null
+          auto_executed: boolean | null
+          executed_at: string | null
+          id: string
+          result: Json | null
+        }
+        Insert: {
+          action_type: string
+          anomaly_id?: string | null
+          auto_executed?: boolean | null
+          executed_at?: string | null
+          id?: string
+          result?: Json | null
+        }
+        Update: {
+          action_type?: string
+          anomaly_id?: string | null
+          auto_executed?: boolean | null
+          executed_at?: string | null
+          id?: string
+          result?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_actions_anomaly_id_fkey"
+            columns: ["anomaly_id"]
+            isOneToOne: false
+            referencedRelation: "anomalies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anomalies: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          factors: Json
+          fuzzy_score: number
+          id: string
+          resource_id: string | null
+          status: string | null
+          type: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          factors: Json
+          fuzzy_score: number
+          id?: string
+          resource_id?: string | null
+          status?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          factors?: Json
+          fuzzy_score?: number
+          id?: string
+          resource_id?: string | null
+          status?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
+      fuzzy_config: {
+        Row: {
+          id: number
+          membership_params: Json
+          metric_type: string
+        }
+        Insert: {
+          id: number
+          membership_params: Json
+          metric_type: string
+        }
+        Update: {
+          id?: number
+          membership_params?: Json
+          metric_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
