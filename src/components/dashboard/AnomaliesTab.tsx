@@ -11,7 +11,8 @@ export default function AnomaliesTab() {
   }
 
   return (
-    <div className="space-y-4 animate-fade-up">
+    <div className="space-y-6 animate-fade-up">
+      <AnomalyHeatmap />
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Spend anomalies</h3>
         <span className="text-xs text-muted-foreground font-mono">{anomalies.length} findings</span>
