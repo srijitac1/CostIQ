@@ -1,5 +1,6 @@
 import { ALL_ANOMALIES, fmt } from "@/lib/dashboard-data";
 import { useState } from "react";
+import AnomalyHeatmap from "./AnomalyHeatmap";
 
 export default function AnomaliesTab() {
   const anomalies = ALL_ANOMALIES.filter(a => a.tab === "anomalies" || a.agent === "Spend");
