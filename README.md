@@ -10,7 +10,7 @@ CostIQ.ai (branded as TrustKit) is a next-generation Software-as-a-Service (SaaS
 
 At the core of CostIQ lies a departure from traditional "threshold-based" alerting (e.g., *alert if spend > $1k*). Instead, the platform utilizes:
 
-1. **Big 4 Audit-Grade Fuzzy Logic Engine:**
+1. **Audit-Grade Fuzzy Logic Engine:**
    Anomalies are scored dynamically using complex, weighted methodologies derived from top-tier audit firms. The engine evaluates:
    - *Materiality* (Financial significance)
    - *Control Risk* (Weakness of internal mitigations)
