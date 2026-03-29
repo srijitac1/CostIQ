@@ -35,6 +35,10 @@
     --cost-surface: 0 0% 7%;
     --cost-surface2: 0 0% 10%;
 
+    --glass-bg: rgba(18, 18, 19, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+
     --font-display: 'Playfair Display', serif;
     --font-body: 'IBM Plex Sans', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
@@ -46,18 +50,36 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
     font-family: var(--font-body);
+    background: radial-gradient(circle at 50% 50%, #1a1a1b 0%, #000 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
   html {
     scroll-behavior: smooth;
   }
 }
 
+@layer utilities {
+  .glass {
+    @apply bg-card/70 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)];
+  }
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 hover:bg-white/10 transition-all duration-300;
+  }
+  .glass-header {
+    @apply bg-black/40 backdrop-blur-md border-b border-white/10;
+  }
+  .glass-sidebar {
+    @apply bg-black/20 backdrop-blur-xl border-r border-white/10;
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary text-primary-foreground px-8 py-3.5 rounded-sm text-[15px] font-semibold
-      inline-flex items-center gap-2 transition-all duration-150 cursor-pointer;
+      inline-flex items-center gap-2 transition-all duration-150 cursor-pointer shadow-lg shadow-primary/20;
     font-family: var(--font-body);
   }
   .btn-primary:hover {

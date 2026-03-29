@@ -1,0 +1,118 @@
+{
+  "name": "TrustKit — Multi-Agent Governance Scan",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "trustkit-scan",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "TrustKit Scan Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "trustkit-scan"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Spend Agent — SaaS & License Audit\nconst { scan_id, organization_id } = $input.first().json;\nconst findings = [\n  { id: `${scan_id}-SP-001`, title: 'Duplicate Slack seats detected', risk: 'high', impact_annual: 18000, tab: 'spend' },\n  { id: `${scan_id}-SP-002`, title: 'Unused Figma Pro licenses (12)', risk: 'medium', impact_annual: 3600, tab: 'spend' },\n  { id: `${scan_id}-SP-003`, title: 'Redundant Zoom + Teams subscription', risk: 'critical', impact_annual: 24000, tab: 'spend' },\n];\nreturn [{ json: { agent: 'spend', scan_id, organization_id, findings, status: 'done', findings_count: findings.length } }];"
+      },
+      "id": "spend-agent",
+      "name": "Spend Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 100]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Resource Agent — Cloud Infrastructure Audit\nconst { scan_id, organization_id } = $input.first().json;\nconst findings = [\n  { id: `${scan_id}-RS-001`, title: 'Idle EC2 t3.xlarge (eu-west-1)', risk: 'critical', impact_annual: 42000, tab: 'resources' },\n  { id: `${scan_id}-RS-002`, title: 'Unattached EBS volumes (23 GB)', risk: 'medium', impact_annual: 2760, tab: 'resources' },\n  { id: `${scan_id}-RS-003`, title: 'Oversized RDS db.r5.2xlarge', risk: 'high', impact_annual: 31200, tab: 'resources' },\n];\nreturn [{ json: { agent: 'resource', scan_id, organization_id, findings, status: 'done', findings_count: findings.length } }];"
+      },
+      "id": "resource-agent",
+      "name": "Resource Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 240]
+    },
+    {
+      "parameters": {
+        "functionCode": "// SLA Agent — Contract Compliance Audit\nconst { scan_id, organization_id } = $input.first().json;\nconst findings = [\n  { id: `${scan_id}-SL-001`, title: 'Support SLA breach – Ticket #8821', risk: 'critical', impact_annual: 15000, tab: 'sla' },\n  { id: `${scan_id}-SL-002', title: 'API uptime SLA below 99.9% threshold', risk: 'high', impact_annual: 8400, tab: 'sla' },\n];\nreturn [{ json: { agent: 'sla', scan_id, organization_id, findings, status: 'done', findings_count: findings.length } }];"
+      },
+      "id": "sla-agent",
+      "name": "SLA Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 380]
+    },
+    {
+      "parameters": {
+        "functionCode": "// FinOps Agent — Billing & Invoice Audit\nconst { scan_id, organization_id } = $input.first().json;\nconst findings = [\n  { id: `${scan_id}-FO-001`, title: 'Invoice discrepancy – AWS Nov billing', risk: 'high', impact_annual: 9600, tab: 'finops' },\n];\nreturn [{ json: { agent: 'finops', scan_id, organization_id, findings, status: 'done', findings_count: findings.length } }];"
+      },
+      "id": "finops-agent",
+      "name": "FinOps Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 520]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "merge-results",
+      "name": "Aggregate Agent Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Aggregate all sub-agent results for TrustKit\nconst allItems = $input.all();\nconst allFindings = allItems.flatMap(item => item.json.findings || []);\nconst summary = {\n  scan_id: allItems[0]?.json.scan_id,\n  total_findings: allFindings.length,\n  agents_completed: allItems.map(i => i.json.agent),\n  findings: allFindings,\n  orchestrator: 'TrustKit v1.2',\n  completed_at: new Date().toISOString(),\n};\nreturn [{ json: summary }];"
+      },
+      "id": "summarize",
+      "name": "TrustKit Result Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Return to TrustKit",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    }
+  ],
+  "connections": {
+    "TrustKit Scan Trigger": {
+      "main": [
+        [
+          { "node": "Spend Agent", "type": "main", "index": 0 },
+          { "node": "Resource Agent", "type": "main", "index": 0 },
+          { "node": "SLA Agent", "type": "main", "index": 0 },
+          { "node": "FinOps Agent", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Spend Agent": { "main": [[{ "node": "Aggregate Agent Results", "type": "main", "index": 0 }]] },
+    "Resource Agent": { "main": [[{ "node": "Aggregate Agent Results", "type": "main", "index": 1 }]] },
+    "SLA Agent": { "main": [[{ "node": "Aggregate Agent Results", "type": "main", "index": 2 }]] },
+    "FinOps Agent": { "main": [[{ "node": "Aggregate Agent Results", "type": "main", "index": 3 }]] },
+    "Aggregate Agent Results": { "main": [[{ "node": "TrustKit Result Summary", "type": "main", "index": 0 }]] },
+    "TrustKit Result Summary": { "main": [[{ "node": "Return to TrustKit", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "trustkit-costiq"
+  }
+}

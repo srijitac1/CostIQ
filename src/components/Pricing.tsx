@@ -11,7 +11,7 @@ const plans = [
     tier: "Growth",
     price: "₹34,999",
     period: "per month · billed annually",
-    features: ["All 5 agents active", "Unlimited integrations", "25 team members", "Slack + email approvals", "Real-time agent dashboard", "TrustKit compliance module", "CSV + PDF export", "Priority support"],
+    features: ["All 4 agents active", "Unlimited integrations", "25 team members", "Slack + email approvals", "Real-time agent dashboard", "TrustKit compliance module", "CSV + PDF export", "Priority support"],
     cta: "Join waitlist",
     featured: true,
   },

@@ -1,23 +1,68 @@
-// Dashboard data constants and utilities
+import { calculateAnomalyScore, classifyRisk, getRecommendedAction, RiskLevel } from "./fuzzy-logic";
 
-export const TICKER = [
-  "Spend agent: ₹7L/mo duplicate SaaS detected across 3 departments",
-  "Compliance agent: SOC 2 CC6 gap blocking ₹2Cr in enterprise deals",
-  "Resource agent: 47 EC2 instances at 8% avg CPU — ₹12L/mo savings",
-  "SLA agent: Ticket TK-8821 breach probability 87% — escalating now",
-  "FinOps agent: Invoice INV-2024-0891 — no matching PO found",
-  "Spend agent: Adobe CC unused 143 days — cancel saving ₹1.5L/yr",
+export interface AnomalyImpact {
+  annual_saving: number;
+  monthly_saving: number | null;
+  formula: string;
+  currency: string;
+  confidence_pct: number;
+}
+
+export interface Anomaly {
+  finding_id: string;
+  agent: string;
+  title: string;
+  detail: string;
+  risk: RiskLevel;
+  impact: AnomalyImpact;
+  proposed_action: string;
+  action_type: string;
+  status: string;
+  tab: string;
+  score?: number; // Fuzzy score 0-100
+}
+
+const RAW_ANOMALIES = [
+  { agent: "SaaS", title: "Redundant subscription overhead", detail: "Overlapping Slack, Notion, and Zoom seats across 3 entities.", tab: "anomalies", inputs: { costDeviation: 0.8, vendorRisk: 0.2, timingUnusualness: 0.1, materiality: 0.9, controlRisk: 0.7, benfordVariance: 0.1, riskVelocity: 0.8 } },
+  { agent: "Cloud", title: "Infrastructure under-utilisation", detail: "47 EC2 instances averaging below 8% CPU utilization for 30 days.", tab: "resources", inputs: { costDeviation: 0.9, vendorRisk: 0.1, timingUnusualness: 0.1, materiality: 0.8, controlRisk: 0.3, benfordVariance: 0.0, riskVelocity: 0.4 } },
+  { agent: "Contract", title: "SLA breach risk — Ticket TK-8821", detail: "Probability of breach >85% due to Tier 2 backlog escalation.", tab: "sla", inputs: { costDeviation: 0.2, vendorRisk: 0.1, timingUnusualness: 0.9, materiality: 0.6, controlRisk: 0.8, benfordVariance: 0.0, riskVelocity: 0.9 } },
+  { agent: "Billing", title: "Invoice reconciliation discrepancy", detail: "INV-2024-0891 lacks matching Purchase Order in ERP systems.", tab: "finops", inputs: { costDeviation: 0.7, vendorRisk: 0.6, timingUnusualness: 0.8, materiality: 0.8, controlRisk: 0.9, benfordVariance: 0.4, riskVelocity: 0.2 } },
+  { agent: "SaaS", title: "Inactive Adobe CC licenses", detail: "5 Enterprise seats (₹1.5L/yr) have 0 active logins for 140+ days.", tab: "anomalies", inputs: { costDeviation: 0.3, vendorRisk: 0.1, timingUnusualness: 0.2, materiality: 0.4, controlRisk: 0.2, benfordVariance: 0.0, riskVelocity: 0.1 } },
+  { agent: "Cloud", title: "Misaligned RDS production tier", detail: "Dev/Test databases running on high-cost Production instances.", tab: "resources", inputs: { costDeviation: 0.6, vendorRisk: 0.1, timingUnusualness: 0.1, materiality: 0.7, controlRisk: 0.4, benfordVariance: 0.0, riskVelocity: 0.3 } },
+  { agent: "Billing", title: "Duplicate vendor remittance", detail: "INV-2024-0445 and INV-2024-0451 share identical metadata.", tab: "finops", inputs: { costDeviation: 0.85, vendorRisk: 0.4, timingUnusualness: 0.95, materiality: 0.9, controlRisk: 0.8, benfordVariance: 0.9, riskVelocity: 0.2 } },
+  { agent: "Contract", title: "Resolution velocity degradation", detail: "Response times increased by 34% this week; 12 contracts affected.", tab: "sla", inputs: { costDeviation: 0.1, vendorRisk: 0.1, timingUnusualness: 0.8, materiality: 0.5, controlRisk: 0.6, benfordVariance: 0.1, riskVelocity: 0.7 } },
 ];
 
-export const ALL_ANOMALIES = [
-  { finding_id:"CA1", agent:"Spend", title:"Duplicate SaaS subscriptions", detail:"Slack, Notion, Zoom billed separately across 3 departments.", risk:"high" as const, impact:{ annual_saving:6972000, monthly_saving:581000, formula:"3 depts × ₹48,333/mo × 12", currency:"INR", confidence_pct:92 }, proposed_action:"Consolidate to single enterprise license", action_type:"api_call", status:"pending", tab:"anomalies" },
-  { finding_id:"CA2", agent:"Resource", title:"47 EC2 instances at 8% avg CPU", detail:"Consistent underutilisation in ap-south-1 over 30 days.", risk:"high" as const, impact:{ annual_saving:12350400, monthly_saving:1029200, formula:"47 × ₹21,900/mo saving", currency:"INR", confidence_pct:88 }, proposed_action:"Rightsize to next tier via AWS API", action_type:"api_call", status:"pending", tab:"resources" },
-  { finding_id:"CA3", agent:"SLA", title:"Ticket TK-8821 — 87% breach probability", detail:"Tier 2 backlog building. SLA window closes in 4h.", risk:"critical" as const, impact:{ annual_saving:1245000, monthly_saving:null, formula:"₹12.45L penalty per breach clause", currency:"INR", confidence_pct:87 }, proposed_action:"Auto-escalate to Tier 2 + reroute tickets", action_type:"workflow", status:"pending", tab:"sla" },
-  { finding_id:"CA4", agent:"FinOps", title:"Invoice INV-2024-0891 — discrepancy", detail:"No matching PO found in SAP. Possible duplicate payment.", risk:"high" as const, impact:{ annual_saving:1240000, monthly_saving:null, formula:"₹12.4L unreconciled — 3 similar this quarter", currency:"INR", confidence_pct:94 }, proposed_action:"Flag for CFO review + pause recurring payment", action_type:"notification", status:"pending", tab:"finops" },
-  { finding_id:"CA5", agent:"Spend", title:"Adobe CC — 143 days no login", detail:"5 seats paying ₹1.5L/yr, last login 143 days ago.", risk:"medium" as const, impact:{ annual_saving:150000, monthly_saving:12500, formula:"5 seats × ₹2,500/mo × 12", currency:"INR", confidence_pct:99 }, proposed_action:"Cancel subscription — no active users", action_type:"api_call", status:"pending", tab:"anomalies" },
-  { finding_id:"CA6", agent:"Resource", title:"3 RDS instances with 2% read load", detail:"Dev databases running in production tier unnecessarily.", risk:"medium" as const, impact:{ annual_saving:2988000, monthly_saving:249000, formula:"3 instances × ₹83,000/mo saving", currency:"INR", confidence_pct:91 }, proposed_action:"Downgrade to db.t3.micro or pause dev DBs", action_type:"api_call", status:"pending", tab:"resources" },
-  { finding_id:"CA7", agent:"FinOps", title:"Vendor Twilio — duplicate invoice", detail:"INV-2024-0445 and INV-2024-0451 same amount, 3 days apart.", risk:"high" as const, impact:{ annual_saving:280000, monthly_saving:null, formula:"₹2.8L potential duplicate payment", currency:"INR", confidence_pct:89 }, proposed_action:"Hold INV-2024-0451 pending vendor confirmation", action_type:"notification", status:"pending", tab:"finops" },
-  { finding_id:"CA8", agent:"SLA", title:"Ticket queue velocity dropping", detail:"Avg resolution time up 34% this week. 12 tickets at risk.", risk:"high" as const, impact:{ annual_saving:3735000, monthly_saving:null, formula:"Est. ₹3.1L/mo penalty exposure at current rate", currency:"INR", confidence_pct:82 }, proposed_action:"Redistribute load to Agent Pool B", action_type:"workflow", status:"pending", tab:"sla" },
+export const ALL_ANOMALIES: Anomaly[] = RAW_ANOMALIES.map((raw, idx) => {
+  const score = calculateAnomalyScore(raw.inputs);
+  const risk = classifyRisk(score);
+  
+  return {
+    finding_id: `AF-${idx + 100}`,
+    agent: raw.agent,
+    title: raw.title,
+    detail: raw.detail,
+    risk: risk,
+    score: score,
+    impact: {
+      annual_saving: Math.round(score * 125000 * (raw.inputs.costDeviation + 0.5)),
+      monthly_saving: Math.round((score * 125000 * (raw.inputs.costDeviation + 0.5)) / 12),
+      formula: `Confidence Score ${score}% × Estimated Variance`,
+      currency: "INR",
+      confidence_pct: score
+    },
+    proposed_action: getRecommendedAction(risk),
+    action_type: risk === "critical" || risk === "high" ? "api_call" : "notification",
+    status: risk === "critical" ? "auto_remediated" : "pending",
+    tab: raw.tab
+  };
+});
+
+export const ALL_SCHEMES = [
+  { id: "S1", name: "GST Input Tax Credit Optimizer", description: "Automated reconciliation of GSTR-2A vs Purchase Register for ITC maximization.", impact: "₹4.5L Avg Monthly Saving", status: "Active", type: "Tax" },
+  { id: "S2", name: "MSME UDYAM Statutory Benefits", description: "Priority sector lending and interest subvention for registered entities.", impact: "1.5% Subvention", status: "Eligible", type: "Govt" },
+  { id: "S3", name: "PLI Governance Framework", description: "Performance Linked Incentive compliance for IT hardware manufacturing.", impact: "6% Incentive Pool", status: "Review", type: "Statutory" },
+  { id: "S4", name: "GST Compliance Engine", description: "Autonomous tracking of GSTR-1 and GSTR-3B filing lifecycles.", impact: "Zero Penalty Assurance", status: "On-Track", type: "Compliance" },
 ];
 
 export const ALL_COMPLIANCE = [

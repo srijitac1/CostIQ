@@ -9,10 +9,13 @@ import ResourcesTab from "@/components/dashboard/ResourcesTab";
 import SlaTab from "@/components/dashboard/SlaTab";
 import FinOpsTab from "@/components/dashboard/FinOpsTab";
 import LedgerTab from "@/components/dashboard/LedgerTab";
+import SchemesTab from "@/components/dashboard/SchemesTab";
 import SettingsTab from "@/components/dashboard/SettingsTab";
+import DocumentsTab from "@/components/dashboard/DocumentsTab";
+import ReportHistoryTab from "@/components/dashboard/ReportHistoryTab";
 import DashboardChatBot from "@/components/dashboard/DashboardChatBot";
 
-const TABS = ["dashboard", "anomalies", "compliance", "resources", "sla", "finops", "ledger", "settings"] as const;
+const TABS = ["dashboard", "anomalies", "compliance", "resources", "sla", "finops", "schemes", "documents", "reports", "ledger", "settings"] as const;
 type Tab = typeof TABS[number];
 
 export default function Dashboard() {
@@ -28,6 +31,9 @@ export default function Dashboard() {
       case "resources": return <ResourcesTab />;
       case "sla": return <SlaTab />;
       case "finops": return <FinOpsTab />;
+      case "schemes": return <SchemesTab />;
+      case "documents": return <DocumentsTab />;
+      case "reports": return <ReportHistoryTab />;
       case "ledger": return <LedgerTab />;
       case "settings": return <SettingsTab />;
     }

@@ -57,12 +57,12 @@ export default function WaitlistForm({ variant = "inline", className = "" }: Pro
           value={email}
           onChange={e => setEmail(e.target.value)}
           placeholder="work@company.com"
-          className="flex-1 bg-cost-surface border border-border rounded-sm px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-5 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
         />
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary whitespace-nowrap disabled:opacity-60"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-black px-8 py-3.5 rounded-xl whitespace-nowrap disabled:opacity-60 shadow-lg shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest text-xs"
         >
           {loading ? "Joining…" : "Join waitlist →"}
         </button>

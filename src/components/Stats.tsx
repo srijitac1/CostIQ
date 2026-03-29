@@ -1,7 +1,7 @@
 const stats = [
   { value: "₹2.4Cr", highlight: false, label: "avg. annual savings per customer" },
   { value: "14 days", highlight: false, label: "average time to first finding" },
-  { value: "5 agents", highlight: false, label: "working in parallel, 24/7" },
+  { value: "4 agents", highlight: false, label: "working in parallel, 24/7" },
   { value: "0 dashboards", highlight: false, label: "no reports — we take action" },
 ];
 
