@@ -29,7 +29,7 @@ At the core of CostIQ lies a departure from traditional "threshold-based" alerti
 
 ---
 
-## ✨ Features Overview
+##  Features Overview
 
 **TrustKit (The Master Orchestrator)**  
 TrustKit is the central intelligence engine of the platform. It functions as the Master Orchestrator, managing schedules, aggregating findings, and persisting real-time data to the Supabase backend. TrustKit triggers governance cycles on demand or via N8N webhooks, evaluating the output of four specialized sub-agents.
@@ -37,16 +37,16 @@ TrustKit is the central intelligence engine of the platform. It functions as the
 **The 4 Autonomous Sub-Agents**  
 These agents operate in parallel during a TrustKit scan, each designed to tackle a specific domain of enterprise leakage:
 
-1. **SpendAgent (SaaS & License Audit):** 
+1. **Spend Agent (SaaS & License Audit):** 
    Autonomously cross-references user activity logs against active SaaS subscriptions. It flags duplicate licenses, deactivated employee accounts still consuming paid seats, and underutilized professional tiers (e.g., dormant Figma or Slack accounts), instantly calculating the annual revenue that can be saved.
    
-2. **ResourceAgent (Cloud Governance):** 
+2. **Resource Agent (Cloud Governance):** 
    Scans AWS, GCP, and Azure environments. It identifies idle computational instances (e.g., t3.xlarge servers running at 2% CPU for 30 days) and orphaned storage volumes (unattached EBS). The agent recommends rightsizing or termination to prevent massive cloud bill shocks.
 
-3. **SLAAgent (Contract Compliance):** 
+3. **SLA Agent (Contract Compliance):** 
    Monitors incident management systems (like Jira/ServiceNow) against contractual Service Level Agreements. If a P1 ticket breaches a 4-hour resolution window causing a 99.9% uptime violation, the SLAAgent identifies the exact penalty clause triggered, allowing teams to proactively manage customer expectations.
 
-4. **FinOpsAgent (Invoice Reconciliation):** 
+4. **FinOps Agent (Invoice Reconciliation):** 
    Performs deep audits on structural billing. It reconciles cloud ingress/egress data transfer charges against CloudWatch metrics or flags unused enterprise volume discounts (e.g., Stripe tiered pricing) that were negotiated but never fully leveraged.
 
 ---
